@@ -5,6 +5,9 @@ from logger import log  # Importa la funzione di logging
 def load_settings():
     """
     Carica le impostazioni da un file JSON.
+
+    Returns:
+        dict: Un dizionario con le impostazioni caricate.
     """
     settings_file = "settings.json"
     default_settings = {
@@ -62,4 +65,4 @@ def menu_impostazioni():
     # Salva le impostazioni modificate
     with open("settings.json", "w") as f:
         json.dump(settings, f, indent=4)
-    log("Impostazioni aggiornate.", level="INFO")  # Ora funzionerà
+    log("Impostazioni aggiornate.", level="INFO")

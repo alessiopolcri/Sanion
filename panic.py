@@ -7,6 +7,9 @@ import subprocess
 def secure_delete(file_path):
     """
     Sovrascrive il file con dati casuali prima di eliminarlo definitivamente.
+
+    Args:
+        file_path (str): Il percorso del file da sovrascrivere ed eliminare.
     """
     if os.path.exists(file_path):
         log(f"Sovrascrittura sicura del file: {file_path}", level="INFO")
@@ -20,6 +23,9 @@ def secure_delete(file_path):
 def panic_button(risultati_analisi):
     """
     Attiva il Panic Button utilizzando i risultati dell'analisi delle app installate.
+
+    Args:
+        risultati_analisi (dict): I risultati dell'analisi delle app installate.
     """
     settings = load_settings()
 

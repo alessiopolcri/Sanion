@@ -1,59 +1,90 @@
 import os
-import re
+import subprocess
 from logger import log
-import threading
+from search import cerca_nome_cognome
 
-ESTENSIONI_MULTIMEDIALI = {
-    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp',  
-    '.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a',  
-    '.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm',  
-    '.pdf', '.zip', '.rar', '.tar', '.gz', '.7z',  
-}
+def cerca_app_installate():
+    """
+    Cerca le app installate sul dispositivo utilizzando il comando di sistema `pm list packages`.
+    Restituisce un dizionario con i pacchetti trovati.
 
-def is_file_multimediale(file_path):
-    _, estensione = os.path.splitext(file_path)
-    return estensione.lower() in ESTENSIONI_MULTIMEDIALI
-
-def cerca_in_file(file_path, pattern):
+    Returns:
+        dict: Un dizionario con i pacchetti delle app di messaggistica trovate.
+    """
+    log("Avvio ricerca delle app installate...", level="INFO")
+    risultati = {}
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            contenuto = f.read()
-            if pattern.search(contenuto):
-                return file_path
-    except (PermissionError, IsADirectoryError, UnicodeDecodeError) as e:
-        log(f"Errore durante la lettura di {file_path}: {e}", level="WARNING")
-    return None
+        comando = "pm list packages"
+        output = subprocess.check_output(comando, shell=True, text=True)
+        pacchetti = [linea.strip().replace("package:", "") for linea in output.splitlines()]
+        app_di_messaggistica = {
+            "whatsapp": "com.whatsapp",
+            "telegram": "org.telegram.messenger",
+            "signal": "org.thoughtcrime.securesms",
+            "facebook_messenger": "com.facebook.orca",
+            "viber": "com.viber.voip"
+        }
+        for nome_app, pacchetto in app_di_messaggistica.items():
+            if pacchetto in pacchetti:
+                log(f"Trovata app: {nome_app} ({pacchetto})", level="INFO")
+                risultati[nome_app] = {
+                    "installata": True,
+                    "pacchetto": pacchetto,
+                    "percorso": f"/data/data/{pacchetto}",
+                    "file_da_cancellare": [
+                        f"/data/data/{pacchetto}/databases/msgstore.db",
+                        f"/data/data/{pacchetto}/databases/wa.db",
+                        f"/data/data/{pacchetto}/cache",
+                        f"/data/data/{pacchetto}/files",
+                    ]
+                }
+            else:
+                log(f"App non trovata: {nome_app} ({pacchetto})", level="INFO")
+                risultati[nome_app] = {"installata": False}
+        log("Ricerca delle app installate completata.", level="INFO")
+        return risultati
+    except subprocess.CalledProcessError as e:
+        log(f"❌ Errore durante l'esecuzione del comando di sistema: {e}", level="ERROR")
+        return {}
 
-def cerca_nome_cognome(directory, nome, cognome):
-    pattern = re.compile(rf'\b{nome}\b.*\b{cognome}\b|\b{cognome}\b.*\b{nome}\b', re.IGNORECASE)
-    file_trovati = []
-    log(f"Inizio ricerca nella directory: {directory}")
+def ricerca_tracce(directory, nome, cognome):
+    """
+    Ricerca tracce di un nome e cognome in una directory.
 
-    # Utilizza una cache per evitare di scansionare ripetutamente la stessa directory
-    cache = set()
+    Args:
+        directory (str): La directory da analizzare.
+        nome (str): Il nome da cercare.
+        cognome (str): Il cognome da cercare.
 
-    def worker(root, files):
-        for file in files:
-            file_path = os.path.join(root, file)
-            if file_path in cache:
-                continue  # Salta i file già analizzati
-            cache.add(file_path)
-
-            if is_file_multimediale(file_path):
-                log(f"Ignoro file multimediale: {file_path}", level="DEBUG")
-                continue
-            risultato = cerca_in_file(file_path, pattern)
-            if risultato:
-                file_trovati.append(risultato)
-                log(f"Trovato in: {risultato}", level="INFO")
-
-    threads = []
-    for root, dirs, files in os.walk(directory):
-        thread = threading.Thread(target=worker, args=(root, files))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
-
+    Returns:
+        list: Una lista di file trovati contenenti il nome e cognome.
+    """
+    log(f"Ricerca tracce per '{nome} {cognome}' nella directory '{directory}'...")
+    file_trovati = cerca_nome_cognome(directory, nome, cognome)
+    if file_trovati:
+        log(f"Trovati {len(file_trovati)} file.", level="INFO")
+        for file in file_trovati:
+            print(file)
+    else:
+        log("Nessun file trovato.", level="INFO")
     return file_trovati
+
+def pulizia_tracce():
+    """
+    Esegue la pulizia delle tracce.
+    """
+    log("Avvio pulizia tracce...", level="INFO")
+    try:
+        file_da_cancellare = ["/sdcard/temp_file1.txt", "/sdcard/temp_file2.log"]
+        for file_path in file_da_cancellare:
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    log(f"✅ File {file_path} eliminato.", level="SUCCESS")
+                except Exception as e:
+                    log(f"❌ Errore durante l'eliminazione di {file_path}: {e}", level="ERROR")
+            else:
+                log(f"File {file_path} non trovato.", level="WARNING")
+        log("Pulizia tracce completata.", level="INFO")
+    except Exception as e:
+        log(f"❌ Errore durante la pulizia delle tracce: {e}", level="ERROR")
