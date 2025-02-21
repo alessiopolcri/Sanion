@@ -1,0 +1,17 @@
+<resources>
+    <string name="menu_principale">=== MENU PRINCIPALE ===</string>
+    <string name="sicurezza_dispositivo">1. Sicurezza dispositivo</string>
+    <string name="ricerca_e_pulizia_tracce">2. Ricerca e pulizia tracce</string>
+    <string name="panic_button">3. 🔴 PANIC BUTTON 🔴 (Numero emergenza)</string>
+    <string name="impostazioni">4. Impostazioni</string>
+    <string name="impostazioni_dispositivo">5. Impostazioni dispositivo</string>
+    <string name="analisi_sicurezza_app">6. Analisi sicurezza app</string>
+    <string name="backup_e_ripristino">7. Backup e ripristino</string>
+    <string name="monitoraggio_tempo_reale">8. Monitoraggio in tempo reale</string>
+    <string name="esci">9. Esci</string>
+    <string name="seleziona_opzione">Seleziona un'opzione: </string>
+    <string name="opzione_non_valida">Opzione non valida! Riprova.</string>
+    <string name="programma_interrotto">Programma interrotto dall'utente.</string>
+    <string name="uscita_dal_programma">Uscita dal programma.</string>
+    <!-- Aggiungi altre stringhe qui -->
+</resources>

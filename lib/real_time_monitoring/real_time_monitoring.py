@@ -1,11 +1,9 @@
 import time
 import psutil
-from logger import log
+from lib.logger.logger import log
+from lib.exceptions.exceptions import handle_exception
 
 def monitoraggio_tempo_reale():
-    """
-    Monitora le attività del sistema in tempo reale.
-    """
     log("Avvio monitoraggio in tempo reale delle attività del sistema...", level="INFO")
     try:
         while True:
@@ -17,4 +15,4 @@ def monitoraggio_tempo_reale():
     except KeyboardInterrupt:
         log("Monitoraggio in tempo reale interrotto dall'utente.", level="WARNING")
     except Exception as e:
-        log(f"❌ Errore durante il monitoraggio in tempo reale: {e}", level="ERROR")
+        handle_exception(e)

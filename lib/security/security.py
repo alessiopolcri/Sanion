@@ -1,15 +1,9 @@
 import os
 import subprocess
-from logger import log
+from lib.logger.logger import log
+from lib.exceptions.exceptions import handle_exception, FileNotFoundError
 
 def cerca_app_installate():
-    """
-    Cerca le app installate sul dispositivo utilizzando il comando di sistema `pm list packages`.
-    Restituisce un dizionario con i pacchetti trovati.
-
-    Returns:
-        dict: Un dizionario con i pacchetti delle app di messaggistica trovate.
-    """
     log("Avvio ricerca delle app installate...", level="INFO")
     risultati = {}
     try:
@@ -43,41 +37,31 @@ def cerca_app_installate():
         log("Ricerca delle app installate completata.", level="INFO")
         return risultati
     except subprocess.CalledProcessError as e:
-        log(f"❌ Errore durante l'esecuzione del comando di sistema: {e}", level="ERROR")
+        handle_exception(e)
         return {}
 
 def ricerca_tracce(directory):
-    """
-    Ricerca tracce in una directory.
-
-    Args:
-        directory (str): La directory da analizzare.
-
-    Returns:
-        list: Una lista di file trovati.
-    """
     log(f"Ricerca tracce nella directory '{directory}'...")
     file_trovati = []
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            file_path = os.path.join(root, file)
-            try:
-                with open(file_path, 'r', errors='ignore') as f:
-                    file_trovati.append(file_path)
-            except Exception as e:
-                log(f"Errore durante la lettura del file {file_path}: {e}", level="ERROR")
-    if file_trovati:
-        log(f"Trovati {len(file_trovati)} file.", level="INFO")
-        for file in file_trovati:
-            print(file)
-    else:
-        log("Nessun file trovato.", level="INFO")
-    return file_trovati
+    try:
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                file_path = os.path.join(root, file)
+                try:
+                    with open(file_path, 'r', errors='ignore') as f:
+                        file_trovati.append(file_path)
+                except Exception as e:
+                    handle_exception(FileNotFoundError(file_path))
+        if file_trovati:
+            log(f"Trovati {len(file_trovati)} file.", level="INFO")
+        else:
+            log("Nessun file trovato.", level="INFO")
+        return file_trovati
+    except Exception as e:
+        handle_exception(e)
+        return []
 
 def pulizia_tracce():
-    """
-    Esegue la pulizia delle tracce.
-    """
     log("Avvio pulizia tracce...", level="INFO")
     try:
         file_da_cancellare = ["/sdcard/temp_file1.txt", "/sdcard/temp_file2.log"]
@@ -87,9 +71,9 @@ def pulizia_tracce():
                     os.remove(file_path)
                     log(f"✅ File {file_path} eliminato.", level="SUCCESS")
                 except Exception as e:
-                    log(f"❌ Errore durante l'eliminazione di {file_path}: {e}", level="ERROR")
+                    handle_exception(FileNotFoundError(file_path))
             else:
                 log(f"File {file_path} non trovato.", level="WARNING")
         log("Pulizia tracce completata.", level="INFO")
     except Exception as e:
-        log(f"❌ Errore durante la pulizia delle tracce: {e}", level="ERROR")
+        handle_exception(e)

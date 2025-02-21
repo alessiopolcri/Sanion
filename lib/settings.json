@@ -1,0 +1,11 @@
+{
+    "clear_call_log": false,
+    "secure_delete": false,
+    "apps_to_clear": {
+        "whatsapp": false,
+        "telegram": false,
+        "signal": false,
+        "facebook_messenger": false,
+        "viber": false
+    }
+}

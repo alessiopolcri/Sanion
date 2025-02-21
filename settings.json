@@ -1,11 +1,16 @@
 {
-    "clear_call_log": false,
-    "secure_delete": false,
+    "auto_start": false,
+    "notifications": true,
+    "auto_update": true,
+    "theme": "Chiaro",
+    "auto_backup": true,
+    "clear_call_log": true,
+    "secure_delete": true,
     "apps_to_clear": {
-        "whatsapp": false,
-        "telegram": false,
-        "signal": false,
-        "facebook_messenger": false,
-        "viber": false
+        "whatsapp": true,
+        "telegram": true,
+        "signal": true,
+        "facebook_messenger": true,
+        "viber": true
     }
 }

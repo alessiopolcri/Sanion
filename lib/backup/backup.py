@@ -1,15 +1,9 @@
 import os
 import shutil
-from logger import log
+from lib.logger.logger import log
+from lib.exceptions.exceptions import handle_exception, BackupException, RestoreException
 
 def backup_dati(source_dir, backup_dir):
-    """
-    Esegue il backup dei dati dalla directory di origine alla directory di backup.
-
-    Args:
-        source_dir (str): La directory di origine dei dati.
-        backup_dir (str): La directory di destinazione del backup.
-    """
     log(f"Inizio backup dati da {source_dir} a {backup_dir}...", level="INFO")
     try:
         if not os.path.exists(backup_dir):
@@ -23,16 +17,9 @@ def backup_dati(source_dir, backup_dir):
                 shutil.copy2(s, d)
         log("Backup completato con successo.", level="SUCCESS")
     except Exception as e:
-        log(f"❌ Errore durante il backup dei dati: {e}", level="ERROR")
+        handle_exception(BackupException(f"Errore durante il backup dei dati: {e}"))
 
 def ripristina_dati(backup_dir, restore_dir):
-    """
-    Ripristina i dati dalla directory di backup alla directory di ripristino.
-
-    Args:
-        backup_dir (str): La directory di backup.
-        restore_dir (str): La directory di destinazione per il ripristino.
-    """
     log(f"Inizio ripristino dati da {backup_dir} a {restore_dir}...", level="INFO")
     try:
         if not os.path.exists(restore_dir):
@@ -46,4 +33,4 @@ def ripristina_dati(backup_dir, restore_dir):
                 shutil.copy2(s, d)
         log("Ripristino completato con successo.", level="SUCCESS")
     except Exception as e:
-        log(f"❌ Errore durante il ripristino dei dati: {e}", level="ERROR")
+        handle_exception(RestoreException(f"Errore durante il ripristino dei dati: {e}"))
