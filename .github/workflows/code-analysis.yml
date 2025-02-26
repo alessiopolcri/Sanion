@@ -26,6 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .  # Per progetti con setup.py/pyproject.toml
+          pip install flake8  # Aggiungi questa riga per installare flake8
 
       - name: Lint with Flake8
         run: flake8 . --count --show-source --statistics --exit-zero
