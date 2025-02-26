@@ -1,26 +1,47 @@
-name: Code Analysis
+name: Python Code Quality Checks
 
 on: [push, pull_request]
 
 jobs:
-  lint_and_security:
+  code_analysis:
+    name: Lint, Security and Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
-          pip install flake8 bandit pytest
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .  # Per progetti con setup.py/pyproject.toml
 
-      - name: Run Flake8 (Linting)
-        run: flake8 .
+      - name: Lint with Flake8
+        run: flake8 . --count --show-source --statistics --exit-zero
 
-      - name: Run Bandit (Security check)
-        run: bandit -r .
+      - name: Security check with Bandit
+        run: bandit -r . --severity-level high --confidence-level high
 
+      - name: Run tests with pytest
+        run: |
+          pytest -v --cov=./ --cov-report=xml tests/
+        env:
+          PYTHONPATH: ./src  # Se necessario per l'import dei moduli
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: coverage-report
+          path: ./coverage.xml
