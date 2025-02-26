@@ -27,7 +27,8 @@ def panic_button(risultati_analisi):
             except subprocess.CalledProcessError as e:
                 handle_exception(SecurityException(f"Errore nell'eliminazione della cronologia chiamate: {e}"))
         for app_name, app_info in risultati_analisi.items():
-            if app_info.get("installata", False) and settings.get(f"clear_{app_name}", False):
+            if app_info.get("installata", False) \
+    and settings.get(f"clear_{app_name}", False):
                 log(f"Eliminazione file di {app_name}...", level="INFO")
                 for file in app_info.get("file_da_cancellare", []):
                     if settings["secure_delete"]:
